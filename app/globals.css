@@ -1,0 +1,166 @@
+@import "tailwindcss";
+
+/* =========================
+   🎨 ROOT SYSTEM
+========================= */
+:root {
+  --background: #0b0f1a;
+  --foreground: #ffffff;
+
+  --muted: #94a3b8;
+  --border: rgba(255,255,255,0.08);
+
+  --radius: 16px;
+}
+
+/* =========================
+   🌍 BASE
+========================= */
+* {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), Arial, sans-serif;
+}
+
+/* =========================
+   🌈 GRADIENT TEXT
+========================= */
+.gradient-text {
+  background: linear-gradient(
+    to right,
+    #a855f7,
+    #6366f1,
+    #3b82f6
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* =========================
+   ✨ BACKGROUND GLOW (STRIPE STYLE)
+========================= */
+.bg-glow::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+
+  background:
+    radial-gradient(circle at 15% 20%, rgba(168, 85, 247, 0.25), transparent 40%),
+    radial-gradient(circle at 85% 30%, rgba(99, 102, 241, 0.2), transparent 40%),
+    radial-gradient(circle at 60% 80%, rgba(59, 130, 246, 0.2), transparent 40%);
+
+  filter: blur(90px);
+}
+
+/* =========================
+   🧊 GLASS SYSTEM (MAIN UI)
+========================= */
+.glass {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+/* =========================
+   🧱 CARD (UNIFIED DARK UI)
+========================= */
+.card {
+  border-radius: 18px;
+  background: rgba(17, 24, 39, 0.75);
+  backdrop-filter: blur(18px);
+  border: 1px solid rgba(255,255,255,0.08);
+
+  box-shadow:
+    0 10px 30px rgba(0,0,0,0.4),
+    inset 0 1px 0 rgba(255,255,255,0.04);
+
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow:
+    0 20px 60px rgba(0,0,0,0.6),
+    inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+/* =========================
+   🔘 BUTTONS
+========================= */
+.btn {
+  border-radius: 12px;
+  transition: all 0.25s ease;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+}
+
+.btn:active {
+  transform: scale(0.96);
+}
+
+/* 🔥 PRIMARY (GRADIENT BUTTON) */
+.btn-primary {
+  background: linear-gradient(
+    to right,
+    #9333ea,
+    #6366f1
+  );
+  color: white;
+  padding: 12px 20px;
+  font-weight: 600;
+  border-radius: 12px;
+
+  box-shadow: 0 8px 25px rgba(99,102,241,0.4);
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+  box-shadow: 0 12px 35px rgba(99,102,241,0.6);
+}
+
+/* 🔹 SECONDARY */
+.btn-secondary {
+  border: 1px solid rgba(255,255,255,0.15);
+  padding: 12px 20px;
+  color: var(--foreground);
+}
+
+.btn-secondary:hover {
+  background: rgba(255,255,255,0.06);
+}
+
+.hover-glow:hover {
+  box-shadow: 0 0 30px rgba(168,85,247,0.15);
+}
+
+/* =========================
+   📦 SCROLLBAR (PREMIUM)
+========================= */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.2);
+  border-radius: 10px;
+}
+
+/* =========================
+   📱 MOBILE OPTIMIZATION
+========================= */
+@media (max-width: 768px) {
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+    text-align: center;
+  }
+}
