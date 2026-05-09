@@ -7,6 +7,7 @@ type Product = {
   id: string;
   name: string;
   price: number;
+  images: string[]; // Optional array of image URLs
 };
 
 type CartItem = Product & {
