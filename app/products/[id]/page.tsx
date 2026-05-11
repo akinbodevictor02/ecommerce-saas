@@ -10,14 +10,12 @@ export default async function ProductPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  // ✅ Await params
   const { id } = await params;
 
   if (!id) {
     return notFound();
   }
 
-  // ✅ Fetch product
   const product = await prisma.product.findUnique({
     where: { id },
   });
@@ -26,7 +24,7 @@ export default async function ProductPage({
     return notFound();
   }
 
-  // ✅ Parse images safely
+  // ✅ SAFE IMAGE PARSE
   let images: string[] = [];
 
   try {
@@ -40,7 +38,7 @@ export default async function ProductPage({
     images = [];
   }
 
-  // ✅ Pass parsed images into product
+  // ✅ PRODUCT WITH PARSED IMAGES
   const parsedProduct = {
     ...product,
     images,
@@ -72,7 +70,7 @@ export default async function ProductPage({
 
         </div>
 
-        {/* PRODUCT DETAILS */}
+        {/* DETAILS */}
         <div className="card p-8 flex flex-col justify-center">
 
           <p className="text-sm uppercase tracking-widest text-purple-400 mb-3">
@@ -87,14 +85,17 @@ export default async function ProductPage({
             {formatPrice(product.price)}
           </p>
 
-          <p className="text-gray-400 mt-5 leading-7">
-            Experience premium quality and modern design crafted
-            for performance, comfort, and everyday lifestyle use.
+          {/* DESCRIPTION */}
+          <p className="text-gray-400 mt-6 leading-8 text-base">
+            {product.description ||
+              "Experience premium quality and modern design crafted for performance, comfort, and everyday lifestyle use."}
           </p>
 
           {/* BUTTON */}
           <div className="mt-8">
-            <AddToCartButton product={parsedProduct} />
+            <AddToCartButton
+              product={parsedProduct}
+            />
           </div>
 
           {/* FEATURES */}

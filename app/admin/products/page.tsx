@@ -7,21 +7,26 @@ import { formatPrice } from "@/lib/formatPrice";
 
 export default function AdminProductsPage() {
   const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [images, setImages] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
   const [products, setProducts] = useState<any[]>([]);
 
   // =============================
-
-
   // FETCH PRODUCTS
   // =============================
   const fetchProducts = async () => {
-    const res = await fetch("/api/products");
-    const data = await res.json();
+    try {
+      const res = await fetch("/api/products");
 
-    setProducts(data);
+      const data = await res.json();
+
+      setProducts(data);
+    } catch (err) {
+      console.log(err);
+      toast.error("Failed to fetch products");
+    }
   };
 
   useEffect(() => {
@@ -43,7 +48,6 @@ export default function AdminProductsPage() {
 
       formData.append("file", file);
 
-      // ✅ CLOUDINARY PRESET
       formData.append(
         "upload_preset",
         "unsigned_upload"
@@ -58,8 +62,6 @@ export default function AdminProductsPage() {
       );
 
       const data = await res.json();
-
-      console.log(data);
 
       if (data.secure_url) {
         setImages((prev) => [
@@ -84,7 +86,7 @@ export default function AdminProductsPage() {
   // CREATE PRODUCT
   // =============================
   const handleCreate = async () => {
-    if (!name || !price) {
+    if (!name || !price || !description) {
       toast.error("Fill all fields");
 
       return;
@@ -96,46 +98,60 @@ export default function AdminProductsPage() {
       return;
     }
 
-    await fetch("/api/products", {
-      method: "POST",
+    try {
+      await fetch("/api/products", {
+        method: "POST",
 
-      headers: {
-        "Content-Type": "application/json",
-      },
+        headers: {
+          "Content-Type": "application/json",
+        },
 
-      body: JSON.stringify({
-        name,
-        price: parseFloat(price),
-        images,
-      }),
-    });
+        body: JSON.stringify({
+          name,
+          description,
+          price: parseFloat(price),
+          images,
+        }),
+      });
 
-    toast.success("Product created!");
+      toast.success("Product created!");
 
-    setName("");
-    setPrice("");
-    setImages([]);
+      setName("");
+      setDescription("");
+      setPrice("");
+      setImages([]);
 
-    fetchProducts();
+      fetchProducts();
+    } catch (err) {
+      console.log(err);
+
+      toast.error("Failed to create product");
+    }
   };
 
   // =============================
   // DELETE PRODUCT
   // =============================
   const handleDelete = async (id: string) => {
-    await fetch("/api/products/delete", {
-      method: "POST",
+    try {
+      await fetch("/api/products/delete", {
+        method: "POST",
 
-      headers: {
-        "Content-Type": "application/json",
-      },
+        headers: {
+          "Content-Type": "application/json",
+        },
 
-      body: JSON.stringify({ id }),
-    });
+        body: JSON.stringify({ id }),
+      });
 
-    toast.success("Product deleted");
+      toast.success("Product deleted");
 
-    fetchProducts();
+      fetchProducts();
+    } catch (err) {
+      console.log(err);
+
+      toast.error("Delete failed");
+    }
   };
 
   return (
@@ -143,8 +159,8 @@ export default function AdminProductsPage() {
       <div className="space-y-10">
 
         {/* CREATE PRODUCT */}
-        <div className="card p-8 max-w-2xl">
-          <h1 className="text-2xl font-bold mb-6">
+        <div className="card p-8 max-w-3xl">
+          <h1 className="text-3xl font-bold mb-6 text-white">
             Create Product
           </h1>
 
@@ -158,10 +174,21 @@ export default function AdminProductsPage() {
             }
           />
 
+          {/* DESCRIPTION */}
+          <textarea
+            className="w-full mb-4 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white outline-none min-h-[140px]"
+            placeholder="Product description"
+            value={description}
+            onChange={(e) =>
+              setDescription(e.target.value)
+            }
+          />
+
           {/* PRICE */}
           <input
+            type="number"
             className="w-full mb-4 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white outline-none"
-            placeholder="Price"
+            placeholder="Price in USD"
             value={price}
             onChange={(e) =>
               setPrice(e.target.value)
@@ -206,17 +233,23 @@ export default function AdminProductsPage() {
 
         {/* PRODUCTS LIST */}
         <div>
-          <h2 className="text-2xl font-bold mb-6">
+          <h2 className="text-3xl font-bold mb-6 text-white">
             Uploaded Products
           </h2>
 
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
 
             {products.map((product) => {
               let imgs: string[] = [];
 
               try {
-                imgs = JSON.parse(product.images || "[]");
+                if (Array.isArray(product.images)) {
+                  imgs = product.images;
+                } else {
+                  imgs = JSON.parse(
+                    product.images || "[]"
+                  );
+                }
               } catch {
                 imgs = [];
               }
@@ -229,33 +262,38 @@ export default function AdminProductsPage() {
                   {/* IMAGE */}
                   <img
                     src={
-                      imgs[0] || "/placeholder.png"
+                      imgs?.[0] ||
+                      "/placeholder.png"
                     }
-                    alt=""
-                    className="w-full h-52 object-cover rounded-2xl mb-4"
+                    alt={product.name}
+                    className="w-full h-56 object-cover rounded-2xl mb-4"
                   />
 
                   {/* INFO */}
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="font-semibold text-lg">
-                        {product.name}
-                      </h3>
+                  <div className="space-y-2">
+                    <h3 className="font-semibold text-xl text-white">
+                      {product.name}
+                    </h3>
 
-                      <p className="text-gray-400 text-sm">
-                        {formatPrice(product.price)}
-                      </p>
-                    </div>
+                    <p className="text-gray-400 text-sm line-clamp-3">
+                      {product.description ||
+                        "No description"}
+                    </p>
 
-                    <button
-                      onClick={() =>
-                        handleDelete(product.id)
-                      }
-                      className="bg-red-500 hover:bg-red-600 transition px-4 py-2 rounded-xl text-white text-sm"
-                    >
-                      Delete
-                    </button>
+                    <p className="text-lg font-bold text-white">
+                      {formatPrice(product.price)}
+                    </p>
                   </div>
+
+                  {/* DELETE */}
+                  <button
+                    onClick={() =>
+                      handleDelete(product.id)
+                    }
+                    className="mt-5 w-full bg-red-500 hover:bg-red-600 transition px-4 py-3 rounded-xl text-white text-sm"
+                  >
+                    Delete Product
+                  </button>
                 </div>
               );
             })}
